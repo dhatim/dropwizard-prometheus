@@ -27,12 +27,13 @@ public interface PrometheusSender extends Closeable {
     /**
      * Flushes buffer, if applicable
      *
-     * @throws IOException
+     * @throws IOException if there is an error connecting
      */
     void flush() throws IOException;
 
     /**
      * Returns true if ready to send data
+     * @return connection status
      */
     boolean isConnected();
 
