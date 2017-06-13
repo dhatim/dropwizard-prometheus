@@ -81,11 +81,11 @@ class DropwizardMetricsExporter {
         writer.writeSample(name, mapOf("quantile", "0.98"), snapshot.get98thPercentile() * factor);
         writer.writeSample(name, mapOf("quantile", "0.99"), snapshot.get99thPercentile() * factor);
         writer.writeSample(name, mapOf("quantile", "0.999"), snapshot.get999thPercentile() * factor);
-        writer.writeSample(name, mapOf("attr", "min"), snapshot.getMin());
-        writer.writeSample(name, mapOf("attr", "max"), snapshot.getMax());
-        writer.writeSample(name, mapOf("attr", "median"), snapshot.getMedian());
-        writer.writeSample(name, mapOf("attr", "mean"), snapshot.getMean());
-        writer.writeSample(name, mapOf("attr", "stddev"), snapshot.getStdDev());
+        writer.writeSample(name + "_min", emptyMap(), snapshot.getMin());
+        writer.writeSample(name + "_max", emptyMap(), snapshot.getMax());
+        writer.writeSample(name + "_median", emptyMap(), snapshot.getMedian());
+        writer.writeSample(name + "_mean", emptyMap(), snapshot.getMean());
+        writer.writeSample(name + "_stddev", emptyMap(), snapshot.getStdDev());
         writer.writeSample(name + "_count", emptyMap(), count);
     }
 
@@ -118,6 +118,8 @@ class DropwizardMetricsExporter {
         writer.writeHelp(name, getHelpMessage(dropwizardName, meter));
         writer.writeType(name, MetricType.COUNTER);
         writer.writeSample(name, emptyMap(), meter.getCount());
+        
+        writeMetered(dropwizardName, meter);
     }
 
     private static String getHelpMessage(String metricName, Metric metric) {
