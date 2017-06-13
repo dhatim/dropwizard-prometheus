@@ -4,6 +4,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
+import com.codahale.metrics.Metered;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
@@ -80,11 +81,24 @@ class DropwizardMetricsExporter {
         writer.writeSample(name, mapOf("quantile", "0.98"), snapshot.get98thPercentile() * factor);
         writer.writeSample(name, mapOf("quantile", "0.99"), snapshot.get99thPercentile() * factor);
         writer.writeSample(name, mapOf("quantile", "0.999"), snapshot.get999thPercentile() * factor);
+        writer.writeSample(name, mapOf("attr", "min"), snapshot.getMin());
+        writer.writeSample(name, mapOf("attr", "max"), snapshot.getMax());
+        writer.writeSample(name, mapOf("attr", "median"), snapshot.getMedian());
+        writer.writeSample(name, mapOf("attr", "mean"), snapshot.getMean());
+        writer.writeSample(name, mapOf("attr", "stddev"), snapshot.getStdDev());
         writer.writeSample(name + "_count", emptyMap(), count);
     }
 
+    private void writeMetered(String dropwizardName, Metered metered) throws IOException {
+        String name = sanitizeMetricName(dropwizardName);
+        writer.writeSample(name, mapOf("rate", "m1"), metered.getOneMinuteRate());
+        writer.writeSample(name, mapOf("rate", "m5"), metered.getFiveMinuteRate());
+        writer.writeSample(name, mapOf("rate", "m15"), metered.getFifteenMinuteRate());
+        writer.writeSample(name, mapOf("rate", "mean"), metered.getMeanRate());
+    }
+
     private Map<String, String> mapOf(String key, String value) {
-        HashMap<String, String> result = new HashMap<String, String>();
+        HashMap<String, String> result = new HashMap<>();
         result.put(key, value);
         return result;
     }
@@ -95,6 +109,7 @@ class DropwizardMetricsExporter {
 
     public void writeTimer(String dropwizardName, Timer timer) throws IOException {
         writeSnapshotAndCount(dropwizardName, timer.getSnapshot(), timer.getCount(), 1.0D / TimeUnit.SECONDS.toNanos(1L), MetricType.SUMMARY, getHelpMessage(dropwizardName, timer));
+        writeMetered(dropwizardName, timer);
     }
 
     public void writeMeter(String dropwizardName, Meter meter) throws IOException {
