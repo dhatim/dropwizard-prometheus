@@ -20,6 +20,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 class PrometheusServlet extends HttpServlet {
@@ -27,6 +29,7 @@ class PrometheusServlet extends HttpServlet {
     public static final String METRICS_REGISTRY = MetricsServlet.class.getCanonicalName() + ".registry";
     public static final String METRIC_FILTER = MetricsServlet.class.getCanonicalName() + ".metricFilter";
     public static final String ALLOWED_ORIGIN = MetricsServlet.class.getCanonicalName() + ".allowedOrigin";
+    private static final Logger LOG = LoggerFactory.getLogger(PrometheusServlet.class);
 
     private MetricRegistry registry;
 
@@ -108,6 +111,9 @@ class PrometheusServlet extends HttpServlet {
             }
 
             writer.flush();
+        } catch (RuntimeException ex) {
+            LOG.error("Unhandled exception", ex);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             writer.close();
         }
