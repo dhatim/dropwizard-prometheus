@@ -164,7 +164,9 @@ public class PrometheusReporter extends ScheduledReporter {
     @SuppressWarnings("rawtypes")
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
         try {
-            prometheus.connect();
+            if (!prometheus.isConnected()) {
+                prometheus.connect();
+            }
 
             for (Map.Entry<String, Gauge> entry : gauges.entrySet()) {
                 prometheus.sendGauge(prefixed(entry.getKey()), entry.getValue());

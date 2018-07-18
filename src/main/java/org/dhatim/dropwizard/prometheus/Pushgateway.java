@@ -11,9 +11,13 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
 
 public class Pushgateway implements PrometheusSender {
 
@@ -21,21 +25,19 @@ public class Pushgateway implements PrometheusSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(Pushgateway.class);
 
-    private final String hostname;
-    private final int port;
+    private final String url;
     private final String job;
 
-    private HttpURLConnection connection;
+    private volatile HttpURLConnection connection = null;
     private PrometheusTextWriter writer;
     private DropwizardMetricsExporter exporter;
 
-    public Pushgateway(String hostname, int port) {
-        this(hostname, port, "prometheus");
+    public Pushgateway(String url) {
+        this(url, "prometheus");
     }
 
-    public Pushgateway(String hostname, int port, String job) {
-        this.hostname = hostname;
-        this.port = port;
+    public Pushgateway(String url, String job) {
+        this.url = url;
         this.job = job;
     }
 
@@ -54,31 +56,28 @@ public class Pushgateway implements PrometheusSender {
 
         int response = connection.getResponseCode();
         if (response != HttpURLConnection.HTTP_ACCEPTED) {
-            throw new IOException("Response code from " + hostname + " was " + response);
+            throw new IOException("Response code from " + url + " was " + response);
         }
         connection.disconnect();
         this.connection = null;
     }
 
     @Override
-    public void connect() throws IllegalStateException, IOException {
-        if (isConnected()) {
-            throw new IllegalStateException("Already connected");
+    public void connect() throws IOException {
+        if (!isConnected()) {
+            String targetUrl = url + "/metrics/job/" + URLEncoder.encode(job, StandardCharsets.UTF_8.name());
+            HttpURLConnection conn = (HttpURLConnection) new URL(targetUrl).openConnection();
+            conn.setRequestProperty(HttpHeaders.CONTENT_TYPE, TextFormat.REQUEST_CONTENT_TYPE);
+            conn.setDoOutput(true);
+            conn.setRequestMethod(HttpMethod.POST);
+
+            conn.setConnectTimeout(10 * SECONDS_PER_MILLISECOND);
+            conn.setReadTimeout(10 * SECONDS_PER_MILLISECOND);
+            conn.connect();
+            this.writer = new PrometheusTextWriter(new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8)));
+            this.exporter = new DropwizardMetricsExporter(writer);
+            this.connection = conn;
         }
-
-        String url = "http://" + hostname + ":" + port + "/metrics/job/" + URLEncoder.encode(job, "UTF-8");
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-        conn.setRequestProperty("Content-Type", TextFormat.REQUEST_CONTENT_TYPE);
-        conn.setDoOutput(true);
-        conn.setRequestMethod("POST");
-
-        conn.setConnectTimeout(10 * SECONDS_PER_MILLISECOND);
-        conn.setReadTimeout(10 * SECONDS_PER_MILLISECOND);
-        conn.connect();
-
-        this.connection = conn;
-        this.writer = new PrometheusTextWriter(new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8)));
-        this.exporter = new DropwizardMetricsExporter(writer);
     }
 
     @Override
