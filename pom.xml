@@ -17,6 +17,10 @@
         Dropwizard bundle and reporter for Prometheus.
     </description>
 
+    <properties>
+        <enforcer.fail>false</enforcer.fail>
+    </properties>
+
     <developers>
         <developer>
             <email>dev-oss@dhatim.com</email>
@@ -107,10 +111,6 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
