@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.dhatim</groupId>
         <artifactId>root-oss</artifactId>
-        <version>18.6.0</version>
+        <version>21.1.22</version>
     </parent>
 
     <groupId>org.dhatim</groupId>
@@ -52,11 +52,6 @@
         <system>GitHub</system>
         <url>https://github.com/dhatim/dropwizard-prometheus/issues</url>
     </issueManagement>
-
-    <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/dhatim/dropwizard-prometheus</url>
-    </ciManagement>
 
     <repositories>
         <repository>
