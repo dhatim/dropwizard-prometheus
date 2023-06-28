@@ -1,7 +1,6 @@
 Dropwizard Prometheus module
 =======
 [![Build Status](https://github.com/dhatim/dropwizard-prometheus/workflows/build/badge.svg)](https://github.com/dhatim/dropwizard-prometheus/actions)
-[![Coverage Status](https://coveralls.io/repos/github/dhatim/dropwizard-prometheus/badge.svg?branch=master)](https://coveralls.io/github/dhatim/dropwizard-prometheus?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.dhatim/dropwizard-prometheus/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.dhatim/dropwizard-prometheus)
 [![Javadocs](https://www.javadoc.io/badge/org.dhatim/dropwizard-prometheus.svg)](https://www.javadoc.io/doc/org.dhatim/dropwizard-prometheus)
 
