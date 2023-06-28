@@ -1,17 +1,18 @@
 package org.dhatim.dropwizard.prometheus;
 
-import io.dropwizard.Bundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.ConfiguredBundle;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 
-public class PrometheusBundle implements Bundle {
+public class PrometheusBundle implements ConfiguredBundle<Configuration> {
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
     }
 
     @Override
-    public void run(Environment environment) {
+    public void run(Configuration configuration, Environment environment) {
         environment.admin().addServlet("prometheus-metrics", new PrometheusServlet(environment.metrics())).addMapping("/prometheus-metrics");
     }
 

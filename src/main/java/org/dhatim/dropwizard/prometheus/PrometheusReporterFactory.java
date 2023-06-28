@@ -4,9 +4,8 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.dropwizard.metrics.BaseReporterFactory;
-
-import javax.validation.constraints.NotNull;
+import io.dropwizard.metrics.common.BaseReporterFactory;
+import jakarta.validation.constraints.NotNull;
 
 @JsonTypeName("prometheus")
 public class PrometheusReporterFactory extends BaseReporterFactory {
